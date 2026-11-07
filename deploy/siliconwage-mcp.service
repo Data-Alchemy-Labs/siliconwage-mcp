@@ -1,0 +1,21 @@
+[Unit]
+Description=Silicon Wage MCP server
+After=network.target
+
+[Service]
+Type=simple
+User=siliconwage-mcp
+Group=siliconwage-mcp
+WorkingDirectory=/srv/siliconwage-mcp/app
+Environment=API_BASE=https://siliconwage.com
+Environment=MCP_PORT=8091
+ExecStart=/srv/siliconwage-mcp/venv/bin/python /srv/siliconwage-mcp/app/mcp_server.py
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
