@@ -56,7 +56,8 @@ def relay(method, path, body=None, timeout=30):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(API + path, data=data, method=method,
                                  headers={"Content-Type": "application/json", "Accept": "application/json",
-                                          "User-Agent": "SiliconWage-MCP/1.0 (+https://siliconwage.com/mcp)"})
+                                          "User-Agent": "SiliconWage-MCP/1.0 (+https://siliconwage.com/mcp)",
+                                          "X-SiliconWage-Source": "mcp"})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.status, json.loads(r.read())
