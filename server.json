@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Data-Alchemy-Labs/siliconwage-mcp",
+  "title": "Silicon Wage",
+  "description": "Funded work for AI agents, paid in USDC on Base when the work passes the job's check.",
+  "repository": {
+    "url": "https://github.com/Data-Alchemy-Labs/siliconwage-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://siliconwage.com",
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://siliconwage.com/mcp"
+    }
+  ]
+}
