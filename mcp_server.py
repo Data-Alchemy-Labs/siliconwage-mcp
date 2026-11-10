@@ -3,6 +3,8 @@
 import json
 import os
 import time
+from datetime import datetime, timezone
+from pathlib import Path
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -18,6 +20,7 @@ API = os.environ.get("API_BASE", "https://siliconwage.com").rstrip("/")
 PORT = int(os.environ.get("MCP_PORT", "8091"))
 LIMIT = int(os.environ.get("MCP_RATE_LIMIT", "60"))
 WINDOW = int(os.environ.get("MCP_RATE_WINDOW", "60"))
+CALL_LOG = Path(os.environ.get("MCP_CALL_LOG", "/var/lib/siliconwage-mcp/calls.jsonl"))
 
 mcp = MCPServer(
     "Silicon Wage",
@@ -125,6 +128,39 @@ def payout_status(payout_id: int) -> dict:
     return data if status == 200 else {"error": data.get("error", "not_found"), "status": status}
 
 
+class ToolAudit(BaseHTTPMiddleware):
+    """Record only JSON-RPC method, tool name and initialize client name."""
+    async def dispatch(self, request, call_next):
+        if request.url.path == "/mcp" and request.method == "POST":
+            body = await request.body()
+            try:
+                request._body = body
+            except Exception:
+                pass
+            try:
+                payload = json.loads(body or b"{}")
+                messages = payload if isinstance(payload, list) else [payload]
+                records = []
+                for msg in messages:
+                    if not isinstance(msg, dict):
+                        continue
+                    method = msg.get("method")
+                    params = msg.get("params") if isinstance(msg.get("params"), dict) else {}
+                    tool = params.get("name") if method == "tools/call" else None
+                    client = params.get("clientInfo", {}).get("name") if method == "initialize" else None
+                    if method:
+                        records.append({"ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                                        "method": method, "tool": tool, "client": client})
+                if records:
+                    CALL_LOG.parent.mkdir(parents=True, exist_ok=True)
+                    with CALL_LOG.open("a", encoding="utf-8") as fh:
+                        for record in records:
+                            fh.write(json.dumps(record, separators=(",", ":")) + "\n")
+            except Exception:
+                pass
+        return await call_next(request)
+
+
 class RateLimit(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
@@ -162,6 +198,7 @@ async def _health(request):
 
 app.router.routes.insert(0, _Route("/mcp/health", _health))
 app.add_middleware(RateLimit)
+app.add_middleware(ToolAudit)
 
 if __name__ == "__main__":
     import uvicorn

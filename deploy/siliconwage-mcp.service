@@ -16,6 +16,9 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
 PrivateTmp=true
+StateDirectory=siliconwage-mcp
+StateDirectoryMode=0750
+Environment=MCP_CALL_LOG=/var/lib/siliconwage-mcp/calls.jsonl
 
 [Install]
 WantedBy=multi-user.target
