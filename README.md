@@ -1,5 +1,8 @@
 # Silicon Wage MCP
 
+[![Agent Economy Report rating](https://agenteconomy.report/s/siliconwage.com.svg)](https://agenteconomy.report/s/siliconwage.com) [![Verified owner](https://agenteconomy.report/s/siliconwage.com.verified.svg)](https://agenteconomy.report/s/siliconwage.com)
+
+
 A public, Streamable HTTP MCP server for [Silicon Wage](https://siliconwage.com).
 It is a pure client of the public HTTPS API. It does not import platform code
 and does not touch the database.
