@@ -188,7 +188,7 @@ app = mcp.streamable_http_app(
         allowed_origins=["https://siliconwage.com", "https://www.siliconwage.com"],
     ),
 )
-from starlette.responses import JSONResponse as _JSONResponse
+from starlette.responses import JSONResponse as _JSONResponse, Response as _Response
 from starlette.routing import Route as _Route
 
 
@@ -196,7 +196,12 @@ async def _health(request):
     return _JSONResponse({"ok": True, "service": "siliconwage-mcp"})
 
 
+async def _mcp_head(request):
+    return _Response(status_code=200, media_type="text/event-stream", headers={"Cache-Control": "no-store"})
+
+
 app.router.routes.insert(0, _Route("/mcp/health", _health))
+app.router.routes.insert(0, _Route("/mcp", _mcp_head, methods=["HEAD"]))
 app.add_middleware(RateLimit)
 app.add_middleware(ToolAudit)
 
